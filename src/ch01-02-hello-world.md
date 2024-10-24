@@ -49,7 +49,7 @@ convention is to use an underscore to separate them. For example, use
 
 Now open the *main.rs* file you just created and enter the code in Listing 1-1.
 
-<span class="filename">Filename: main.rs</span>
+<Listing number="1-1" file-name="main.rs" caption="A program that prints `Hello, world!`">
 
 ```rust
 fn main() {
@@ -57,7 +57,7 @@ fn main() {
 }
 ```
 
-<span class="caption">Listing 1-1: A program that prints `Hello, world!`</span>
+</Listing>
 
 Save the file and go back to your terminal window in the
 *~/projects/hello_world* directory. On Linux or macOS, enter the following
@@ -125,7 +125,7 @@ First, Rust style is to indent with four spaces, not a tab.
 
 Second, `println!` calls a Rust macro. If it had called a function instead, it
 would be entered as `println` (without the `!`). We’ll discuss Rust macros in
-more detail in Chapter 19. For now, you just need to know that using a `!`
+more detail in Chapter 20. For now, you just need to know that using a `!`
 means that you’re calling a macro instead of a normal function and that macros
 don’t always follow the same rules as functions.
 

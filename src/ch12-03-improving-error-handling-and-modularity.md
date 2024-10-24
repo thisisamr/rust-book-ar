@@ -41,8 +41,8 @@ community has developed guidelines for splitting the separate concerns of a
 binary program when `main` starts getting large. This process has the following
 steps:
 
-* Split your program into a *main.rs* and a *lib.rs* and move your program’s
-  logic to *lib.rs*.
+* Split your program into a *main.rs* file and a *lib.rs* file and move your
+  program’s logic to *lib.rs*.
 * As long as your command line parsing logic is small, it can remain in
   *main.rs*.
 * When the command line parsing logic starts getting complicated, extract it
@@ -57,7 +57,7 @@ should be limited to the following:
 * Handling the error if `run` returns an error
 
 This pattern is about separating concerns: *main.rs* handles running the
-program, and *lib.rs* handles all the logic of the task at hand. Because you
+program and *lib.rs* handles all the logic of the task at hand. Because you
 can’t test the `main` function directly, this structure lets you test all of
 your program’s logic by moving it into functions in *lib.rs*. The code that
 remains in *main.rs* will be small enough to verify its correctness by reading
@@ -70,14 +70,13 @@ We’ll extract the functionality for parsing arguments into a function that
 *src/lib.rs*. Listing 12-5 shows the new start of `main` that calls a new
 function `parse_config`, which we’ll define in *src/main.rs* for the moment.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-5" file-name="src/main.rs" caption="Extracting a `parse_config` function from `main`">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-05/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-5: Extracting a `parse_config` function from
-`main`</span>
+</Listing>
 
 We’re still collecting the command line arguments into a vector, but instead of
 assigning the argument value at index 1 to the variable `query` and the
@@ -112,14 +111,13 @@ other and what their purpose is.
 
 Listing 12-6 shows the improvements to the `parse_config` function.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-6" file-name="src/main.rs" caption="Refactoring `parse_config` to return an instance of a `Config` struct">
 
 ```rust,should_panic,noplayground
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-06/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-6: Refactoring `parse_config` to return an
-instance of a `Config` struct</span>
+</Listing>
 
 We’ve added a struct named `Config` defined to have fields named `query` and
 `file_path`. The signature of `parse_config` now indicates that it returns a
@@ -165,7 +163,7 @@ named for their purpose.
 
 So far, we’ve extracted the logic responsible for parsing the command line
 arguments from `main` and placed it in the `parse_config` function. Doing so
-helped us to see that the `query` and `file_path` values were related and that
+helped us see that the `query` and `file_path` values were related, and that
 relationship should be conveyed in our code. We then added a `Config` struct to
 name the related purpose of `query` and `file_path` and to be able to return the
 values’ names as struct field names from the `parse_config` function.
@@ -179,14 +177,13 @@ changing `parse_config` into a `new` function associated with `Config`, we’ll
 be able to create instances of `Config` by calling `Config::new`. Listing 12-7
 shows the changes we need to make.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-7" file-name="src/main.rs" caption="Changing `parse_config` into `Config::new`">
 
 ```rust,should_panic,noplayground
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-07/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-7: Changing `parse_config` into
-`Config::new`</span>
+</Listing>
 
 We’ve updated `main` where we were calling `parse_config` to instead call
 `Config::new`. We’ve changed the name of `parse_config` to `new` and moved it
@@ -211,25 +208,24 @@ they should do instead. Let’s fix that now.
 #### Improving the Error Message
 
 In Listing 12-8, we add a check in the `new` function that will verify that the
-slice is long enough before accessing index 1 and 2. If the slice isn’t long
-enough, the program panics and displays a better error message.
+slice is long enough before accessing index 1 and index 2. If the slice isn’t
+long enough, the program panics and displays a better error message.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-8" file-name="src/main.rs" caption="Adding a check for the number of arguments">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-08/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-8: Adding a check for the number of
-arguments</span>
+</Listing>
 
 This code is similar to [the `Guess::new` function we wrote in Listing
 9-13][ch9-custom-types]<!-- ignore -->, where we called `panic!` when the
 `value` argument was out of the range of valid values. Instead of checking for
-a range of values here, we’re checking that the length of `args` is at least 3
-and the rest of the function can operate under the assumption that this
+a range of values here, we’re checking that the length of `args` is at least
+`3` and the rest of the function can operate under the assumption that this
 condition has been met. If `args` has fewer than three items, this condition
-will be true, and we call the `panic!` macro to end the program immediately.
+will be `true`, and we call the `panic!` macro to end the program immediately.
 
 With these extra few lines of code in `new`, let’s run the program without any
 arguments again to see what the error looks like now:
@@ -239,8 +235,8 @@ arguments again to see what the error looks like now:
 ```
 
 This output is better: we now have a reasonable error message. However, we also
-have extraneous information we don’t want to give to our users. Perhaps using
-the technique we used in Listing 9-13 isn’t the best to use here: a call to
+have extraneous information we don’t want to give to our users. Perhaps the
+technique we used in Listing 9-13 isn’t the best one to use here: a call to
 `panic!` is more appropriate for a programming problem than a usage problem,
 [as discussed in Chapter 9][ch9-error-guidelines]<!-- ignore -->. Instead,
 we’ll use the other technique you learned about in Chapter 9—[returning a
@@ -265,17 +261,16 @@ function we’re now calling `Config::build` and the body of the function needed
 to return a `Result`. Note that this won’t compile until we update `main` as
 well, which we’ll do in the next listing.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-9" file-name="src/main.rs" caption="Returning a `Result` from `Config::build`">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-09/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-9: Returning a `Result` from
-`Config::build`</span>
+</Listing>
 
 Our `build` function returns a `Result` with a `Config` instance in the success
-case and a `&'static str` in the error case. Our error values will always be
+case and a string literal in the error case. Our error values will always be
 string literals that have the `'static` lifetime.
 
 We’ve made two changes in the body of the function: instead of calling `panic!`
@@ -299,28 +294,27 @@ tool with a nonzero error code away from `panic!` and instead implement it by
 hand. A nonzero exit status is a convention to signal to the process that
 called our program that the program exited with an error state.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-10" file-name="src/main.rs" caption="Exiting with an error code if building a `Config` fails">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-10/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-10: Exiting with an error code if building a
-`Config` fails</span>
+</Listing>
 
 In this listing, we’ve used a method we haven’t covered in detail yet:
 `unwrap_or_else`, which is defined on `Result<T, E>` by the standard library.
 Using `unwrap_or_else` allows us to define some custom, non-`panic!` error
 handling. If the `Result` is an `Ok` value, this method’s behavior is similar
-to `unwrap`: it returns the inner value `Ok` is wrapping. However, if the value
-is an `Err` value, this method calls the code in the *closure*, which is an
-anonymous function we define and pass as an argument to `unwrap_or_else`. We’ll
-cover closures in more detail in [Chapter 13][ch13]<!-- ignore -->. For now,
-you just need to know that `unwrap_or_else` will pass the inner value of the
-`Err`, which in this case is the static string `"not enough arguments"` that we
-added in Listing 12-9, to our closure in the argument `err` that appears
-between the vertical pipes. The code in the closure can then use the `err`
-value when it runs.
+to `unwrap`: it returns the inner value that `Ok` is wrapping. However, if the
+value is an `Err` value, this method calls the code in the *closure*, which is
+an anonymous function we define and pass as an argument to `unwrap_or_else`.
+We’ll cover closures in more detail in [Chapter 13][ch13]<!-- ignore -->. For
+now, you just need to know that `unwrap_or_else` will pass the inner value of
+the `Err`, which in this case is the static string `"not enough arguments"`
+that we added in Listing 12-9, to our closure in the argument `err` that
+appears between the vertical pipes. The code in the closure can then use the
+`err` value when it runs.
 
 We’ve added a new `use` line to bring `process` from the standard library into
 scope. The code in the closure that will be run in the error case is only two
@@ -350,14 +344,13 @@ Listing 12-11 shows the extracted `run` function. For now, we’re just making
 the small, incremental improvement of extracting the function. We’re still
 defining the function in *src/main.rs*.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-11" file-name="src/main.rs" caption="Extracting a `run` function containing the rest of the program logic">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-11/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-11: Extracting a `run` function containing the
-rest of the program logic</span>
+</Listing>
 
 The `run` function now contains all the remaining logic from `main`, starting
 from reading the file. The `run` function takes the `Config` instance as an
@@ -373,14 +366,13 @@ us further consolidate the logic around handling errors into `main` in a
 user-friendly way. Listing 12-12 shows the changes we need to make to the
 signature and body of `run`.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-12" file-name="src/main.rs" caption="Changing the `run` function to return `Result`">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-12/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-12: Changing the `run` function to return
-`Result`</span>
+</Listing>
 
 We’ve made three significant changes here. First, we changed the return type of
 the `run` function to `Result<(), Box<dyn Error>>`. This function previously
@@ -389,12 +381,12 @@ returned the unit type, `()`, and we keep that as the value returned in the
 
 For the error type, we used the *trait object* `Box<dyn Error>` (and we’ve
 brought `std::error::Error` into scope with a `use` statement at the top).
-We’ll cover trait objects in [Chapter 17][ch17]<!-- ignore -->. For now, just
+We’ll cover trait objects in [Chapter 18][ch18]<!-- ignore -->. For now, just
 know that `Box<dyn Error>` means the function will return a type that
 implements the `Error` trait, but we don’t have to specify what particular type
 the return value will be. This gives us flexibility to return error values that
 may be of different types in different error cases. The `dyn` keyword is short
-for “dynamic.”
+for *dynamic*.
 
 Second, we’ve removed the call to `expect` in favor of the `?` operator, as we
 talked about in [Chapter 9][ch9-question-mark]<!-- ignore -->. Rather than
@@ -431,11 +423,11 @@ with `Config::build` in Listing 12-10, but with a slight difference:
 ```
 
 We use `if let` rather than `unwrap_or_else` to check whether `run` returns an
-`Err` value and call `process::exit(1)` if it does. The `run` function doesn’t
-return a value that we want to `unwrap` in the same way that `Config::build`
-returns the `Config` instance. Because `run` returns `()` in the success case,
-we only care about detecting an error, so we don’t need `unwrap_or_else` to
-return the unwrapped value, which would only be `()`.
+`Err` value and to call `process::exit(1)` if it does. The `run` function
+doesn’t return a value that we want to `unwrap` in the same way that
+`Config::build` returns the `Config` instance. Because `run` returns `()` in
+the success case, we only care about detecting an error, so we don’t need
+`unwrap_or_else` to return the unwrapped value, which would only be `()`.
 
 The bodies of the `if let` and the `unwrap_or_else` functions are the same in
 both cases: we print the error and exit.
@@ -443,10 +435,10 @@ both cases: we print the error and exit.
 ### Splitting Code into a Library Crate
 
 Our `minigrep` project is looking good so far! Now we’ll split the
-*src/main.rs* file and put some code into the *src/lib.rs* file. That way we
+*src/main.rs* file and put some code into the *src/lib.rs* file. That way, we
 can test the code and have a *src/main.rs* file with fewer responsibilities.
 
-Let’s move all the code that isn’t the `main` function from *src/main.rs* to
+Let’s move all the code that isn’t in the `main` function from *src/main.rs* to
 *src/lib.rs*:
 
 * The `run` function definition
@@ -458,14 +450,13 @@ The contents of *src/lib.rs* should have the signatures shown in Listing 12-13
 (we’ve omitted the bodies of the functions for brevity). Note that this won’t
 compile until we modify *src/main.rs* in Listing 12-14.
 
-<span class="filename">Filename: src/lib.rs</span>
+<Listing number="12-13" file-name="src/lib.rs" caption="Moving `Config` and `run` into *src/lib.rs*">
 
 ```rust,ignore,does_not_compile
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-13/src/lib.rs:here}}
 ```
 
-<span class="caption">Listing 12-13: Moving `Config` and `run` into
-*src/lib.rs*</span>
+</Listing>
 
 We’ve made liberal use of the `pub` keyword: on `Config`, on its fields and its
 `build` method, and on the `run` function. We now have a library crate that has
@@ -474,20 +465,18 @@ a public API we can test!
 Now we need to bring the code we moved to *src/lib.rs* into the scope of the
 binary crate in *src/main.rs*, as shown in Listing 12-14.
 
-<span class="filename">Filename: src/main.rs</span>
+<Listing number="12-14" file-name="src/main.rs" caption="Using the `minigrep` library crate in *src/main.rs*">
 
 ```rust,ignore
 {{#rustdoc_include ../listings/ch12-an-io-project/listing-12-14/src/main.rs:here}}
 ```
 
-<span class="caption">Listing 12-14: Using the `minigrep` library crate in
-*src/main.rs*</span>
+</Listing>
 
 We add a `use minigrep::Config` line to bring the `Config` type from the
 library crate into the binary crate’s scope, and we prefix the `run` function
 with our crate name. Now all the functionality should be connected and should
-work. Run the program with `cargo run` and make sure everything works
-correctly.
+work. Run the program with `cargo run` and make sure everything works correctly.
 
 Whew! That was a lot of work, but we’ve set ourselves up for success in the
 future. Now it’s much easier to handle errors, and we’ve made the code more
@@ -501,5 +490,5 @@ write some tests!
 [ch9-custom-types]: ch09-03-to-panic-or-not-to-panic.html#creating-custom-types-for-validation
 [ch9-error-guidelines]: ch09-03-to-panic-or-not-to-panic.html#guidelines-for-error-handling
 [ch9-result]: ch09-02-recoverable-errors-with-result.html
-[ch17]: ch17-00-oop.html
+[ch18]: ch18-00-oop.html
 [ch9-question-mark]: ch09-02-recoverable-errors-with-result.html#a-shortcut-for-propagating-errors-the--operator
